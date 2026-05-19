@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Bell } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -12,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
 
   const submit = async () => {
     if (!email || !password) {
@@ -32,10 +33,16 @@ const Login = () => {
       login(res.data.token, res.data.name, email);
       toast.success(`Welcome back, ${res.data.name || "User"}! ✨`);
       
-      // Delay briefly to allow the success toast to be read
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 600);
+      if ("Notification" in window && Notification.permission === "default") {
+        setTimeout(() => {
+          setShowPermissionPrompt(true);
+        }, 600);
+      } else {
+        // Delay briefly to allow the success toast to be read
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 600);
+      }
     } catch (err: any) {
       console.error(err);
       const errorMsg = err.response?.data?.message || "Invalid credentials. Please check and try again.";
@@ -202,6 +209,82 @@ const Login = () => {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Premium Notification Permission Modal */}
+      <AnimatePresence>
+        {showPermissionPrompt && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
+              className="w-full max-w-[400px] glass-panel border border-[var(--border)] shadow-2xl rounded-3xl p-8 text-center relative overflow-hidden"
+            >
+              {/* Decorative background glow inside modal */}
+              <div className="absolute -top-12 -left-12 w-28 h-28 rounded-full bg-blue-500/20 blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-12 -right-12 w-28 h-28 rounded-full bg-indigo-500/20 blur-2xl pointer-events-none" />
+
+              {/* Glowing Bell Icon */}
+              <div className="relative mx-auto mb-6 w-20 h-20 flex items-center justify-center rounded-2xl bg-gradient-to-tr from-primary/10 to-indigo-500/10 border border-primary/20 text-primary shadow-glow-blue">
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2.5, repeatDelay: 1 }}
+                >
+                  <Bell className="h-10 w-10 text-primary" />
+                </motion.div>
+                <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-950 animate-pulse" />
+              </div>
+
+              {/* Heading */}
+              <h2 className="text-xl md:text-2xl font-bold text-[var(--text)] mb-3 leading-snug">
+                Enable smart reminders and overdue alerts?
+              </h2>
+
+              {/* Description */}
+              <p className="text-sm text-muted mb-8 leading-relaxed">
+                Stay on top of your workflow! TaskZen will notify you when tasks are due soon, overdue, or need your immediate attention.
+              </p>
+
+              {/* Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={async () => {
+                    try {
+                      const permission = await Notification.requestPermission();
+                      if (permission === "granted") {
+                        new Notification("🎉 Notifications Enabled!", {
+                          body: "You will now receive smart reminders and overdue alerts from TaskZen.",
+                          icon: "/logo.png",
+                        });
+                        toast.success("Awesome! Reminders are active. 🔔");
+                      } else if (permission === "denied") {
+                        toast.error("Permission denied. You can enable them later in settings.");
+                      }
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      window.location.href = "/";
+                    }
+                  }}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-primary to-indigo-600 text-white font-semibold flex items-center justify-center gap-2 hover:opacity-95 active:opacity-90 transition-all duration-300 shadow-glow-blue cursor-pointer"
+                >
+                  <span>Enable Notifications</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    window.location.href = "/";
+                  }}
+                  className="w-full py-3.5 rounded-2xl bg-transparent text-muted font-medium hover:text-[var(--text)] hover:bg-[var(--hover)] transition-all duration-300 cursor-pointer"
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

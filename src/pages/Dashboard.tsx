@@ -64,12 +64,6 @@ const Dashboard = () => {
   const notifiedTasksRef = useRef<Set<string>>(new Set());
   const notifiedDueSoonTasksRef = useRef<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-  }, []);
-
   const showNotification = (title: string, body: string) => {
     if (Notification.permission === "granted") {
       new Notification(title, {
@@ -80,10 +74,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
     todos.forEach((todo) => {
       if (!todo.completed) {
         // Check dynamic status for DUE_SOON state
