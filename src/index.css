@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --background:#FFFFFF;
+  --sidebar:#FFFFFF;
+  --card:#FFFFFF;
+  --surface:#F8FAFC;
+  --text:#0F172A;
+  --muted:#64748B;
+  --border:#E2E8F0;
+  --input:#F1F5F9;
+  --hover:#EEF2FF;
+  --primary:#3B82F6;
+  --cardShadow:0 4px 20px rgba(15,23,42,0.06);
+}
+
+.dark{
+  --background:#071028;
+  --sidebar:#081120;
+  --card:#0F172A;
+  --surface:#1A2438;
+  --text:#FFFFFF;
+  --muted:#94A3B8;
+  --border:rgba(255,255,255,0.05);
+  --input:#0B1424;
+  --hover:rgba(255,255,255,0.04);
+  --primary:#3B82F6;
+  --cardShadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+body{
+  margin:0;
+  padding:0;
+  background:var(--background);
+  color:var(--text);
+  font-family:Inter,sans-serif;
+  transition:all 0.3s ease;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+/* Premium Animations & Utility Classes */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+  50% { transform: translateY(-30px) scale(1.1) rotate(180deg); }
+}
+
+@keyframes float-slower {
+  0%, 100% { transform: translateY(0px) scale(1.1) rotate(360deg); }
+  50% { transform: translateY(30px) scale(0.9) rotate(180deg); }
+}
+
+.animate-float-slow {
+  animation: float-slow 25s infinite ease-in-out;
+}
+
+.animate-float-slower {
+  animation: float-slower 30s infinite ease-in-out;
+}
+
+.grid-bg {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(59, 130, 246, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.04) 1px, transparent 1px);
+}
+
+.dark .grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(59, 130, 246, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.02) 1px, transparent 1px);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.shadow-glow-blue {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+}
+
+.shadow-glow-purple {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+}
+
