@@ -61,8 +61,24 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("DASHBOARD");
-  const notifiedTasksRef = useRef<Set<string>>(new Set());
-  const notifiedDueSoonTasksRef = useRef<Set<string>>(new Set());
+  const notifiedTasksRef = useRef<Set<string>>(new Set(
+    (() => {
+      try {
+        return JSON.parse(localStorage.getItem("taskzen_notified_overdue") || "[]");
+      } catch (e) {
+        return [];
+      }
+    })()
+  ));
+  const notifiedDueSoonTasksRef = useRef<Set<string>>(new Set(
+    (() => {
+      try {
+        return JSON.parse(localStorage.getItem("taskzen_notified_duesoon") || "[]");
+      } catch (e) {
+        return [];
+      }
+    })()
+  ));
 
   const showNotification = (title: string, body: string) => {
     if (Notification.permission === "granted") {
@@ -80,6 +96,7 @@ const Dashboard = () => {
         if (todo.status === "DUE_SOON" && !notifiedDueSoonTasksRef.current.has(todo.id)) {
           showNotification("⏰ Task Due Soon", `${todo.task} is due in less than 1 hour`);
           notifiedDueSoonTasksRef.current.add(todo.id);
+          localStorage.setItem("taskzen_notified_duesoon", JSON.stringify(Array.from(notifiedDueSoonTasksRef.current)));
         }
 
         // Check local time for general OVERDUE state
@@ -104,6 +121,7 @@ const Dashboard = () => {
             console.log("TRIGGERING NOTIFICATION FOR OVERDUE TASK:", todo.task);
             showNotification("⚠️ Task Pending", `${todo.task} is overdue 🚨`);
             notifiedTasksRef.current.add(todo.id);
+            localStorage.setItem("taskzen_notified_overdue", JSON.stringify(Array.from(notifiedTasksRef.current)));
           }
         }
       }
