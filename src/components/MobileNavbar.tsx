@@ -2,11 +2,38 @@ import toast from "react-hot-toast";
 import {
   Bell
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const MobileNavbar = () => {
+  const { name } = useAuth();
+
+  const getInitials = (fullName: string | null) => {
+    if (!fullName) return "U";
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0].slice(0, 2).toUpperCase();
+  };
+
+  const getFirstName = (fullName: string | null) => {
+    if (!fullName) return "User";
+    return fullName.trim().split(/\s+/)[0];
+  };
+
   return (
     <div className="md:hidden flex justify-between items-center mb-6">
-      <div className="w-11" /> {/* Spacer to keep logo centered */}
+      <div className="flex items-center gap-2">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm border border-white/10">
+          {getInitials(name)}
+        </div>
+        <div className="flex flex-col text-left leading-none">
+          <span className="text-[8px] text-muted font-bold uppercase tracking-wider">Hey,</span>
+          <span className="text-[11px] font-extrabold text-[var(--text)] truncate max-w-[65px] mt-0.5">
+            {getFirstName(name)}
+          </span>
+        </div>
+      </div>
 
       <div className="flex items-center justify-center bg-white border border-slate-200/60 shadow-sm rounded-xl px-3 py-1.5">
         <img src="/logo.png" alt="TaskZen Logo" className="h-6 w-auto object-contain" />
