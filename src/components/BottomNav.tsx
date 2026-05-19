@@ -2,8 +2,6 @@ import {
   LayoutDashboard,
   ClipboardList,
   CheckCircle,
-  Clock,
-  Star,
   Settings
 } from "lucide-react";
 
@@ -37,16 +35,6 @@ const BottomNav = ({ activeFilter, setFilter }: BottomNavProps) => {
       <div className={getTabClass("COMPLETED")} onClick={() => setFilter("COMPLETED")}>
         <CheckCircle size={18} />
         <span className="text-[8px] uppercase tracking-widest font-semibold">Done</span>
-      </div>
-
-      <div className={getTabClass("PENDING")} onClick={() => setFilter("PENDING")}>
-        <Clock size={18} />
-        <span className="text-[8px] uppercase tracking-widest font-semibold">Todo</span>
-      </div>
-
-      <div className={getTabClass("IMPORTANT")} onClick={() => setFilter("IMPORTANT")}>
-        <Star size={18} />
-        <span className="text-[8px] uppercase tracking-widest font-semibold">Star</span>
       </div>
 
       <div className={getTabClass("SETTINGS")} onClick={() => setFilter("SETTINGS")}>

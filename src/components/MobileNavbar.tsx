@@ -1,15 +1,12 @@
 import toast from "react-hot-toast";
 import {
-  Menu,
   Bell
 } from "lucide-react";
 
 const MobileNavbar = () => {
   return (
     <div className="md:hidden flex justify-between items-center mb-6">
-      <button className="bg-[var(--card)] border border-[var(--border)] p-3 rounded-2xl text-[var(--text)] hover:bg-[var(--hover)]">
-        <Menu size={20} />
-      </button>
+      <div className="w-11" /> {/* Spacer to keep logo centered */}
 
       <div className="flex items-center justify-center bg-white border border-slate-200/60 shadow-sm rounded-xl px-3 py-1.5">
         <img src="/logo.png" alt="TaskZen Logo" className="h-6 w-auto object-contain" />
