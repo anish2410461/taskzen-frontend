@@ -42,9 +42,15 @@ const ProductivityChart = ({
       </h1>
 
       {hasTasks ? (
-        <div className="w-full overflow-hidden">
-          <div style={{ width: "100%", height: 300 }}>
-            <ResponsiveContainer width="100%" height="100%">
+        <div
+          style={{
+            width: "100%",
+            height: "300px",
+            minWidth: 0,
+          }}
+        >
+          {chartData && chartData.length > 0 && (
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={chartData || []}
@@ -72,7 +78,7 @@ const ProductivityChart = ({
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
-          </div>
+          )}
         </div>
       ) : (
         <div className="h-[300px] w-full flex flex-col items-center justify-center text-center text-muted">
