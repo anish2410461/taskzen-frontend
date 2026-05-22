@@ -19,17 +19,21 @@ const ProductivityChart = ({
   const chartData = [
     {
       name: "Completed",
-      value: completed
+      value: completed || 0
     },
     {
       name: "Pending",
-      value: pending
+      value: pending || 0
     }
   ];
 
+  if (!chartData || chartData.length === 0) {
+    return null;
+  }
+
   const COLORS = ["#3B82F6", "#60A5FA"];
 
-  const hasTasks = completed > 0 || pending > 0;
+  const hasTasks = (completed || 0) > 0 || (pending || 0) > 0;
 
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-3xl p-6 shadow-[var(--cardShadow)]">
@@ -38,35 +42,37 @@ const ProductivityChart = ({
       </h1>
 
       {hasTasks ? (
-        <div className="w-full h-[300px] min-w-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={100}
-                fill="#8884d8"
-                label
-              >
-                {chartData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: 'var(--card)',
-                  borderColor: 'var(--border)',
-                  color: 'var(--text)',
-                  borderRadius: '12px',
-                }}
-              />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="w-full overflow-hidden">
+          <div style={{ width: "100%", height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData || []}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  label
+                >
+                  {chartData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--card)',
+                    borderColor: 'var(--border)',
+                    color: 'var(--text)',
+                    borderRadius: '12px',
+                  }}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       ) : (
         <div className="h-[300px] w-full flex flex-col items-center justify-center text-center text-muted">

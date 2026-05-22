@@ -90,11 +90,12 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    todos.forEach((todo) => {
+    todos?.forEach((todo) => {
+      if (!todo) return;
       if (!todo.completed) {
         // Check dynamic status for DUE_SOON state
-        if (todo.status === "DUE_SOON" && !notifiedDueSoonTasksRef.current.has(todo.id)) {
-          showNotification("⏰ Task Due Soon", `${todo.task} is due in less than 1 hour`);
+        if (todo.status === "DUE_SOON" && todo.id && !notifiedDueSoonTasksRef.current.has(todo.id)) {
+          showNotification("⏰ Task Due Soon", `${todo.task || "Untitled Task"} is due in less than 1 hour`);
           notifiedDueSoonTasksRef.current.add(todo.id);
           localStorage.setItem("taskzen_notified_duesoon", JSON.stringify(Array.from(notifiedDueSoonTasksRef.current)));
         }
@@ -102,7 +103,7 @@ const Dashboard = () => {
         // Check local time for general OVERDUE state
         if (todo.dueDate) {
           const dateParts = todo.dueDate.split("-");
-          let dueDate: Date;
+          let dueDate: Date | null = null;
           if (dateParts.length === 3) {
             dueDate = new Date(
               parseInt(dateParts[0]),
@@ -111,17 +112,19 @@ const Dashboard = () => {
               23, 59, 59
             );
           } else {
-            dueDate = new Date(todo.dueDate);
+            dueDate = todo.dueDate ? new Date(todo.dueDate) : null;
           }
 
-          const now = new Date();
-          console.log("Checking task:", todo.task, "| Due Date:", dueDate, "| Current Time:", now);
+          if (dueDate) {
+            const now = new Date();
+            console.log("Checking task:", todo.task, "| Due Date:", dueDate, "| Current Time:", now);
 
-          if (dueDate < now && !notifiedTasksRef.current.has(todo.id)) {
-            console.log("TRIGGERING NOTIFICATION FOR OVERDUE TASK:", todo.task);
-            showNotification("⚠️ Task Pending", `${todo.task} is overdue 🚨`);
-            notifiedTasksRef.current.add(todo.id);
-            localStorage.setItem("taskzen_notified_overdue", JSON.stringify(Array.from(notifiedTasksRef.current)));
+            if (dueDate < now && todo.id && !notifiedTasksRef.current.has(todo.id)) {
+              console.log("TRIGGERING NOTIFICATION FOR OVERDUE TASK:", todo.task);
+              showNotification("⚠️ Task Pending", `${todo.task || "Untitled Task"} is overdue 🚨`);
+              notifiedTasksRef.current.add(todo.id);
+              localStorage.setItem("taskzen_notified_overdue", JSON.stringify(Array.from(notifiedTasksRef.current)));
+            }
           }
         }
       }
@@ -146,15 +149,16 @@ const Dashboard = () => {
     loadDashboard();
   }, []);
 
-  const filteredTodos = todos.filter((todo) => {
-    if (!todo.task.toLowerCase().includes(search.toLowerCase())) return false;
+  const filteredTodos = todos?.filter((todo) => {
+    if (!todo) return false;
+    if (!todo.task?.toLowerCase().includes(search.toLowerCase())) return false;
     
     if (filter === "COMPLETED") return todo.completed;
     if (filter === "PENDING") return !todo.completed;
     if (filter === "IMPORTANT") return todo.priority === "HIGH";
     
     return true;
-  });
+  }) || [];
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -323,26 +327,29 @@ const Dashboard = () => {
                 
                 <h3 className="text-sm font-semibold text-text mb-3 uppercase tracking-wider">Recent Tasks</h3>
                 <div className="space-y-3">
-                  {todos.slice(0, 4).map(todo => (
-                    <div key={todo.id} className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 last:pb-0">
-                      <div className="flex flex-col overflow-hidden">
-                        <span className={`text-sm truncate ${todo.completed ? 'line-through text-muted' : 'text-text'}`}>
-                          {todo.task}
+                  {todos?.slice(0, 4).map(todo => {
+                    if (!todo) return null;
+                    return (
+                      <div key={todo.id} className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                        <div className="flex flex-col overflow-hidden">
+                          <span className={`text-sm truncate ${todo.completed ? 'line-through text-muted' : 'text-text'}`}>
+                            {todo.task}
+                          </span>
+                          {todo.dueDate && (
+                            <span className="text-xs text-muted mt-1">{todo.dueDate}</span>
+                          )}
+                        </div>
+                        <span className={`text-[10px] px-2 py-1 rounded-full font-medium ml-2 shrink-0 ${
+                          todo.priority === 'HIGH' ? 'bg-red-500/10 text-red-500' : 
+                          todo.priority === 'MEDIUM' ? 'bg-yellow-500/10 text-yellow-500' : 
+                          'bg-blue-500/10 text-blue-500'
+                        }`}>
+                          {todo.priority}
                         </span>
-                        {todo.dueDate && (
-                          <span className="text-xs text-muted mt-1">{todo.dueDate}</span>
-                        )}
                       </div>
-                      <span className={`text-[10px] px-2 py-1 rounded-full font-medium ml-2 shrink-0 ${
-                        todo.priority === 'HIGH' ? 'bg-red-500/10 text-red-500' : 
-                        todo.priority === 'MEDIUM' ? 'bg-yellow-500/10 text-yellow-500' : 
-                        'bg-blue-500/10 text-blue-500'
-                      }`}>
-                        {todo.priority}
-                      </span>
-                    </div>
-                  ))}
-                  {todos.length === 0 && <span className="text-sm text-muted">No tasks yet.</span>}
+                    );
+                  })}
+                  {(!todos || todos.length === 0) && <span className="text-sm text-muted">No tasks yet.</span>}
                 </div>
               </div>
             </div>
@@ -468,30 +475,33 @@ const Dashboard = () => {
                 >
                   {loading ? (
                     Array.from({ length: 3 }).map((_, i) => <TaskSkeleton key={i} />)
-                  ) : filteredTodos.length > 0 ? (
+                  ) : filteredTodos?.length > 0 ? (
                     <AnimatePresence>
-                      {filteredTodos.map((todo, index) => (
-                        <Draggable 
-                          key={todo.id} 
-                          draggableId={todo.id} 
-                          index={index}
-                          isDragDisabled={(filter !== "ALL" && filter !== "DASHBOARD") || search.length > 0}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <TaskCard
-                                todo={todo}
-                                onToggle={handleToggle}
-                                onDelete={handleDelete}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
+                      {filteredTodos.map((todo, index) => {
+                        if (!todo) return null;
+                        return (
+                          <Draggable 
+                            key={todo.id} 
+                            draggableId={todo.id} 
+                            index={index}
+                            isDragDisabled={(filter !== "ALL" && filter !== "DASHBOARD") || search.length > 0}
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <TaskCard
+                                  todo={todo}
+                                  onToggle={handleToggle}
+                                  onDelete={handleDelete}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        );
+                      })}
                     </AnimatePresence>
                   ) : (
                     <EmptyState />

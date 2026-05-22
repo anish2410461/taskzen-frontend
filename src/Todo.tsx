@@ -60,21 +60,19 @@ export default function TodoList() {
           </button>
         </div>
         <div className="mx-1">
-          {Tasks.map((m, i) => (
-            <>
-              <div
-                key={i}
-                className=" flex justify-between my-2 shadow-sm shadow-blue-400 rounded-2xl p-2"
+          {Tasks?.map((m, i) => (
+            <div
+              key={i}
+              className=" flex justify-between my-2 shadow-sm shadow-blue-400 rounded-2xl p-2"
+            >
+              <h1 className="font-medium flex items-center">{m?.tasks}</h1>
+              <button
+                className="p-1 tracking-wide w-20 rounded-2xl font-bold text-white bg-red-500  active:bg-red-900 transition-all delay-75"
+                onClick={() => m?.tasks && handledelete(m.tasks as string)}
               >
-                <h1 className="font-medium flex items-center">{m.tasks}</h1>
-                <button
-                  className="p-1 tracking-wide w-20 rounded-2xl font-bold text-white bg-red-500  active:bg-red-900 transition-all delay-75"
-                  onClick={() => handledelete(m.tasks as string)}
-                >
-                  Delete
-                </button>
-              </div>
-            </>
+                Delete
+              </button>
+            </div>
           ))}
         </div>
       </div>

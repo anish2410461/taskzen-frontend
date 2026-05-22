@@ -17,13 +17,13 @@ const TaskCard = ({
   const [showMenu, setShowMenu] = useState(false);
 
   const priorityClasses =
-    todo.priority === 'HIGH'
+    todo?.priority === 'HIGH'
       ? 'bg-red-500/15 text-red-400'
-      : todo.priority === 'MEDIUM'
+      : todo?.priority === 'MEDIUM'
       ? 'bg-orange-500/15 text-orange-400'
       : 'bg-blue-500/15 text-blue-400';
 
-  const status = todo.completed ? 'COMPLETED' : (todo.status || 'UPCOMING');
+  const status = todo?.completed ? 'COMPLETED' : (todo?.status || 'UPCOMING');
   const statusClasses =
     status === 'COMPLETED'
       ? 'bg-green-500/15 text-green-400'
@@ -33,7 +33,7 @@ const TaskCard = ({
       ? 'bg-orange-500/15 text-orange-400 animate-pulse'
       : 'bg-blue-500/15 text-blue-400';
 
-  const borderClasses = todo.completed
+  const borderClasses = todo?.completed
     ? 'border-green-500/30 dark:border-green-500/20 hover:border-green-500/50'
     : status === 'OVERDUE'
     ? 'border-red-500/40 dark:border-red-500/30 hover:border-red-500/60 shadow-[0_0_12px_rgba(239,68,68,0.08)]'
@@ -42,8 +42,9 @@ const TaskCard = ({
     : 'border-blue-500/30 dark:border-blue-500/20 hover:border-blue-500/50';
 
   const getCountdown = () => {
-    if (!todo.dueDateTime || todo.completed) return null;
+    if (!todo?.dueDateTime || todo.completed) return null;
     const due = new Date(todo.dueDateTime);
+    if (isNaN(due.getTime())) return null;
     const now = new Date();
     const diff = due.getTime() - now.getTime();
     if (diff <= 0) return 'Overdue';
@@ -65,19 +66,19 @@ const TaskCard = ({
       <div className="flex items-center gap-4">
         <input
           type="checkbox"
-          checked={todo.completed}
-          onChange={() => onToggle(todo.id)}
+          checked={todo?.completed || false}
+          onChange={() => todo?.id && onToggle(todo.id)}
           className="w-5 h-5 rounded border border-border bg-card text-primary cursor-pointer accent-primary"
         />
         <div className="flex flex-col">
-          <h1 className={`text-text text-base font-medium ${todo.completed ? 'line-through text-muted' : ''}`}>
-            {todo.task}
+          <h1 className={`text-text text-base font-medium ${todo?.completed ? 'line-through text-muted' : ''}`}>
+            {todo?.task || "Untitled Task"}
           </h1>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
             <span className="text-muted text-xs font-medium">
-              {todo.dueDateTime 
+              {todo?.dueDateTime && !isNaN(new Date(todo.dueDateTime).getTime())
                 ? `Due ${new Date(todo.dueDateTime).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}` 
-                : todo.dueDate 
+                : todo?.dueDate 
                 ? `Due ${todo.dueDate}` 
                 : 'No due date'}
             </span>
